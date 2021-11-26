@@ -13,11 +13,18 @@ class EasyTimer {
     private init() { }
     
     func resume(deadline: DispatchTime,
-                         repeating interval: DispatchTimeInterval = .never,
-                         leeway: DispatchTimeInterval = .nanoseconds(0),
-                         handler: (()->(Void))?,
-                         async: Bool
-                        ) -> Int? {
+                repeating interval: DispatchTimeInterval = .never,
+                handler: (()->(Void))?) -> Int? {
+        return resume(deadline: deadline, repeating: interval, leeway: .nanoseconds(0), handler: handler, cancelHandler: nil, async: false)
+    }
+    
+    func resume(deadline: DispatchTime,
+                repeating interval: DispatchTimeInterval = .never,
+                leeway: DispatchTimeInterval = .nanoseconds(0),
+                handler: (()->(Void))?,
+                cancelHandler: (()->(Void))?,
+                async: Bool
+    ) -> Int? {
         guard let handler = handler else {
             return nil
         }
@@ -30,8 +37,9 @@ class EasyTimer {
         timers[key] = timer
         
         timer.schedule(deadline: deadline, repeating: interval)
-
+        
         timer.setEventHandler(handler: handler)
+        timer.setCancelHandler(handler: cancelHandler)
         timer.resume()
         
         return key
