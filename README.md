@@ -1,2 +1,2 @@
-# FZHWorkKit
-常用的代码
+# EasyTimer
+An easy and thread safe timer.
