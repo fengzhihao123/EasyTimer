@@ -10,21 +10,17 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    var key: Int?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        key = EasyTimer.shared.resume(deadline: .now(), repeating: .seconds(1), leeway: .seconds(0), handler: {
+            print(1111)
+        }, async: false)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        alertDemo()
-    }
-
-    func alertDemo() {
-        let alertVC = SimpleAlert.fzh_alert(title: "title", message: "message") { () -> [FZHAction] in
-            FZHAction.destructive("Delete") { }
-            FZHAction.cancel("Calcel") { }
-        }
-        present(alertVC, animated: true, completion: nil)
+        EasyTimer.shared.cancel(key: key)
     }
 }
 
