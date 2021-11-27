@@ -9,6 +9,7 @@ import Foundation
 class EasyTimer {
     static let shared = EasyTimer()
     private var timers = [Int: DispatchSourceTimer]()
+    private var semaphore = DispatchSemaphore(value: 1)
     
     private init() { }
     
@@ -30,11 +31,12 @@ class EasyTimer {
         }
         
         let queue = async ? DispatchQueue.global() : DispatchQueue.main
-        
         let timer = DispatchSource.makeTimerSource(flags: .strict, queue: queue)
         
+        let _ = semaphore.wait(timeout: .distantFuture)
         let key = timers.keys.count
         timers[key] = timer
+        semaphore.signal()
         
         timer.schedule(deadline: deadline, repeating: interval)
         
@@ -50,8 +52,10 @@ class EasyTimer {
             return
         }
         
-        if let timer = timers[key] {
-            timer.cancel()
-        }
+        let _ = semaphore.wait(timeout: .distantFuture)
+        guard let timer = timers[key] else { return }
+        semaphore.signal()
+        
+        timer.cancel()
     }
 }
