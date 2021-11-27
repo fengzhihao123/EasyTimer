@@ -15,20 +15,19 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        key = EasyTimer.shared.resume(deadline: .now(), repeating: .seconds(1), leeway: .seconds(0), handler: { [weak self] in
-            print(self?.name)
-            print(Thread.current)
+        key = EasyTimer.shared.resume(deadline: .now(), repeating: .seconds(1), leeway: .seconds(0), handler: {
+            print(self.name)
         }, cancelHandler: {
             print("cancelHandler")
         } , async: true)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        EasyTimer.shared.cancel(key: key)
+        print(EasyTimer.shared.cancel(key: key))
     }
     
     deinit {
-        EasyTimer.shared.cancel(key: key)
+        print(EasyTimer.shared.cancel(key: key))
         print("deinit")
     }
 }

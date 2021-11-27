@@ -6,6 +6,12 @@
 //
 
 import Foundation
+
+enum ETCancelResult {
+    case success, keyIsNil, timerNotFound
+}
+
+
 class EasyTimer {
     static let shared = EasyTimer()
     private var timers = [Int: DispatchSourceTimer]()
@@ -17,6 +23,13 @@ class EasyTimer {
                 repeating interval: DispatchTimeInterval = .never,
                 handler: (()->(Void))?) -> Int? {
         return resume(deadline: deadline, repeating: interval, leeway: .nanoseconds(0), handler: handler, cancelHandler: nil, async: false)
+    }
+    
+    func resume(deadline: DispatchTime,
+                repeating interval: DispatchTimeInterval = .never,
+                handler: (()->(Void))?,
+                cancelHandler: (()->(Void))?) -> Int? {
+        return resume(deadline: deadline, repeating: interval, leeway: .nanoseconds(0), handler: handler, cancelHandler: cancelHandler, async: false)
     }
     
     func resume(deadline: DispatchTime,
@@ -47,15 +60,14 @@ class EasyTimer {
         return key
     }
     
-    func cancel(key: Int?) {
-        guard let key = key else {
-            return
-        }
+    func cancel(key: Int?) -> ETCancelResult {
+        guard let key = key else { return .keyIsNil}
         
         let _ = semaphore.wait(timeout: .distantFuture)
-        guard let timer = timers[key] else { return }
+        guard let timer = timers[key] else { return .timerNotFound }
         semaphore.signal()
         
         timer.cancel()
+        return .success
     }
 }
